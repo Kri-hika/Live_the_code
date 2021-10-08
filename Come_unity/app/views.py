@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.http import HttpResponse
 from .models import Config 
 import json
@@ -34,18 +34,6 @@ createTemplate('templates/partials')
 def index(request):
     return render(request,"index.html")
 
-def receive(request):
-    if request.method == 'POST':
-        payload = json.loads(request.body)["payload"]
-        setLoaded(True)
-        setPayload(payload)
-        print(payload)
-        
-        status = 200 if verifyToken(payload) else 404
-        print(status)
-        response_data = {"status":status}
-        return HttpResponse(json.dumps(response_data), content_type="application/json")
-
 def signin(request):
     setLoaded()
     setPayload(load if loaded<2 else '')
@@ -58,5 +46,30 @@ def signin(request):
     context = {"sawo":config,"load":load,"title":"Home"}
     return render(request,'signin.html',context)
 
-def signup(request):
-    return render(request,'signup.html')
+def info(request):
+    return render(request,'info.html')
+
+def info_form(request):
+  # if this is a POST request we need to process the form data
+  if request.method == 'POST':
+    # create a form instance and populate it with data from the request:
+    form = SubscribeForm(request.POST)
+    # check whether it's valid:
+    if form.is_valid():
+        # process the data in form.cleaned_data as required
+        p = form.save()
+        '''
+        name = form.cleaned_data['name']
+        number = form.cleaned_date['phone_number']
+        p = Person(name=name, phone_number=number, date_subscribed=datetime.now(), messages_recieved=0)
+        p.save()
+        '''
+        # redirect to a new URL:
+        return HttpResponseRedirect('/success/')
+  # if a GET (or any other method) we'll create a blank form    
+  else: 
+    form = SubscribeForm()
+
+  return render(request, 'texting/index.html', {'form': form})
+
+
