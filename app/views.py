@@ -1,8 +1,8 @@
-from django.http.response import HttpResponseRedirect
+from django.http.response import HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.http import HttpResponse
-from .models import Config, Info
+from .models import Config, Info, Customized_Info
 import json
 import os
 from sawo import createTemplate, getContext, verifyToken
@@ -63,10 +63,34 @@ def info(request):
     return render(request,'info.html')
 
 def dashboard(request):
-    return render(request,"dashboard.html")
+    db_list = Customized_Info.objects.all()
+    return render(request,"dashboard.html",{"db_list":db_list})
 
 def form(request):
-    return render(request,"form.html")
+    if request.method=='POST':
+        form =Customized_Info(request.POST)
+        c_name=request.POST.get('c_name')
+        logo=request.POST.get('logo')
+        bg_img=request.POST.get('bg_img')
+        url=request.POST.get('url')
+        c_url=request.POST.get('c_url')
+        desc=request.POST.get('desc')
+        ins=Customized_Info(c_name=c_name,logo=logo,bg_img=bg_img,url=url,c_url=c_url,desc=desc)
+        ins.save()
+        messages.success(request, 'Profile is set up Welcome to the Community')
+        
+        return redirect('community')
+    else:
+        form = Customized_Info()
+    return render(request,'form.html')
 
 def community(request):
-    return render(request,'template.html')
+    customized_data = Customized_Info.objects.all()
+    return render(request,"template.html",{"customized_data":customized_data})
+
+def update_id(request):
+     data = Customized_Info.objects.all()
+     return render(request, "template.html",{"data":data})
+
+def aboutUs(request):
+    return render(request,'aboutUs.html')
