@@ -1,6 +1,8 @@
-from django.shortcuts import render
+from django.http.response import HttpResponseRedirect
+from django.shortcuts import redirect, render
+from django.contrib import messages
 from django.http import HttpResponse
-from .models import Config 
+from .models import Config, Info
 import json
 import os
 from sawo import createTemplate, getContext, verifyToken
@@ -24,6 +26,7 @@ def setLoaded(reset=False):
 createTemplate('templates/partials')
 
 
+
 # def index(request):
 #     config = Config.objects.order_by('_api_key')[:1]
 #     setLoaded()
@@ -33,18 +36,6 @@ createTemplate('templates/partials')
 
 def index(request):
     return render(request,"index.html")
-
-def receive(request):
-    if request.method == 'POST':
-        payload = json.loads(request.body)["payload"]
-        setLoaded(True)
-        setPayload(payload)
-        print(payload)
-        
-        status = 200 if verifyToken(payload) else 404
-        print(status)
-        response_data = {"status":status}
-        return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 def signin(request):
     setLoaded()
@@ -58,5 +49,24 @@ def signin(request):
     context = {"sawo":config,"load":load,"title":"Home"}
     return render(request,'signin.html',context)
 
-def signup(request):
-    return render(request,'signup.html')
+def info(request):
+    if request.method=='POST':
+        form=Info(request.POST)
+        name=request.POST.get('name')
+        email=request.POST.get('email')
+        ins=Info(name=name,email=email)
+        ins.save()
+        messages.success(request, 'Profile is set up Welcome to the Dashboard')
+        return redirect('dashboard')
+    else:
+        form = Info()
+    return render(request,'info.html')
+
+def dashboard(request):
+    return render(request,"dashboard.html")
+
+def form(request):
+    return render(request,"form.html")
+
+def community(request):
+    return render(request,'template.html')
