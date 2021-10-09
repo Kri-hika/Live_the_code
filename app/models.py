@@ -11,7 +11,8 @@ class Config(models.Model):
 class Info(models.Model):
     name = models.CharField( max_length=30)  # Field name made lowercase.
     email = models.EmailField(max_length=254) # field name for email in lowercase
-
+    def __str__(self):
+            return self.name
 
 
 class Customized_Info(models.Model):
@@ -20,5 +21,6 @@ class Customized_Info(models.Model):
     bg_img =  models.ImageField(upload_to = 'pics')  # Field name made lowercase.m
     url = models.URLField(max_length=231)# field name for email in lowercase
     c_url = models.URLField(max_length=231) # Field name made lowercase.models
+    desc = models.CharField( max_length=400,default='') 
     def __str__(self):
-        return self.name
+        return self.c_name
